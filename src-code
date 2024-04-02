@@ -41,8 +41,8 @@
 			this.m_recorderInfoEntry = new VideoInfoEntry
 			{
 				videoID = VideoHandle.Invalid,
-				timeLeft = 200f,
-				maxTime = 200f
+				timeLeft = 900000f,
+				maxTime = 900000f
 			};
 			data.AddDataEntry(this.m_recorderInfoEntry);
 			this.m_recorderInfoEntry.SetDirty();
