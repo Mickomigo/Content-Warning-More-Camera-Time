@@ -1,0 +1,51 @@
+	// Token: 0x06000726 RID: 1830
+	public override void ConfigItem(ItemInstanceData data, PhotonView playerView)
+	{
+		this.m_instanceData = data;
+		this.m_playerView = playerView;
+		CameraHandler.RegisterCamera(data.m_guid, this);
+		if (this.isHeldByMe)
+		{
+			if (this.m_camera.targetTexture == null)
+			{
+				this.CreateRenderTexture();
+			}
+			this.m_camera.gameObject.SetActive(true);
+		}
+		if (data.TryGetEntry<VideoInfoEntry>(out this.m_recorderInfoEntry))
+		{
+			if (this.m_recorderInfoEntry.StartedRecording && this.m_recorderInfoEntry.isRecording)
+			{
+				bool flag = this.isHeldByMe;
+				if (!flag && playerView == null)
+				{
+					flag = PhotonNetwork.IsMasterClient;
+				}
+				if (flag)
+				{
+					if (playerView != null)
+					{
+						this.RestartRecording(playerView);
+						this.m_blockCameraInput = true;
+						base.StartCoroutine(this.UnlockCamera());
+					}
+					else
+					{
+						base.StartCoroutine(this.RestartRecordingDelayed());
+					}
+				}
+			}
+		}
+		else
+		{
+			this.m_recorderInfoEntry = new VideoInfoEntry
+			{
+				videoID = VideoHandle.Invalid,
+				timeLeft = 200f,
+				maxTime = 200f
+			};
+			data.AddDataEntry(this.m_recorderInfoEntry);
+			this.m_recorderInfoEntry.SetDirty();
+			VerboseDebug.Log("RecorderInfo entry not found, adding new entry with default info.");
+		}
+		this.m_recordingUI.gameObject.SetActive(this.recording);
